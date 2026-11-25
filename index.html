@@ -2,93 +2,205 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#f0f7f4" />
-  <title>我的 PWA 工具箱</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f6f8" />
+  <meta name="description" content="个人的轻量效率工具集合，可安装到桌面离线使用。" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="效率工具箱" />
+  <title>个人效率工具箱</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232d6a4f'/%3E%3Crect x='26' y='30' width='48' height='10' rx='5' fill='%23ffffff'/%3E%3Crect x='26' y='46' width='48' height='10' rx='5' fill='%23a7d8c0'/%3E%3Crect x='26' y='62' width='30' height='10' rx='5' fill='%23ffffff'/%3E%3C/svg%3E" />
   <style>
     :root {
-      --bg: #f0f7f4;
+      --bg: #f4f6f8;
       --card: #ffffff;
       --primary: #2d6a4f;
-      --primary-light: #52b788;
-      --text: #1b4332;
-      --muted: #748c82;
-      --border: #d8e8e0;
+      --primary-soft: #e6f2ec;
+      --text: #16211c;
+      --muted: #7b8a83;
+      --border: #e6ebee;
+      --shadow: 0 2px 10px rgba(22, 33, 28, .05);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 24px 16px 40px;
-      max-width: 480px;
+      padding: calc(22px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
+      max-width: 520px;
       margin: 0 auto;
       min-height: 100vh;
     }
-    h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-    .sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
-    .tools { display: grid; gap: 12px; }
-    .tool {
+
+    /* ---------- 头部 ---------- */
+    header { margin-bottom: 20px; }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    h1 { font-size: 24px; font-weight: 750; letter-spacing: -.01em; margin: 6px 0 4px; }
+    .sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ---------- 卡片列表 ---------- */
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 22px 2px 10px;
+    }
+    .count {
+      font-variant-numeric: tabular-nums;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1px 9px;
+      font-size: 11px;
+    }
+    .cards { display: grid; gap: 10px; }
+
+    /* 每个工具一张卡片：<a class="card" href="./pwa/xxx/"> */
+    .card {
+      position: relative;
       display: flex;
       align-items: center;
       gap: 14px;
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 15px 16px;
       text-decoration: none;
       color: inherit;
-      box-shadow: 0 4px 16px rgba(45, 106, 79, 0.06);
-      transition: transform .12s ease, box-shadow .12s ease;
+      box-shadow: var(--shadow);
+      transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
     }
-    .tool:active { transform: scale(.985); }
-    .tool:hover { box-shadow: 0 6px 20px rgba(45, 106, 79, 0.12); }
-    .icon {
-      flex: 0 0 44px;
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      background: var(--primary);
-      color: #fff;
+    .card:active { transform: scale(.98); }
+    .card:hover { border-color: #d3ded8; box-shadow: 0 4px 16px rgba(22, 33, 28, .08); }
+    .card .icon {
+      flex: 0 0 46px;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
       display: grid;
       place-items: center;
-      font-size: 22px;
+      font-size: 23px;
+      background: var(--primary-soft);
     }
-    .info { flex: 1; min-width: 0; }
-    .name { font-size: 16px; font-weight: 650; }
-    .desc { font-size: 12px; color: var(--muted); margin-top: 3px; }
-    .arrow { color: var(--primary-light); font-size: 18px; font-weight: 700; }
-    .btn {
-      display: block;
+    .card .info { flex: 1; min-width: 0; }
+    .card .name {
+      font-size: 16px;
+      font-weight: 650;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .card .desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.45;
+    }
+    .card .chev { flex: 0 0 auto; color: #b9c6c0; font-size: 20px; line-height: 1; }
+
+    /* 占位卡片：新增工具时可删掉 */
+    .card.placeholder {
+      border-style: dashed;
+      background: transparent;
+      box-shadow: none;
+      cursor: default;
+    }
+    .card.placeholder:active { transform: none; }
+    .card.placeholder .icon { background: #eceff1; color: var(--muted); font-size: 20px; }
+    .card.placeholder .name { color: var(--muted); font-weight: 600; font-size: 14px; }
+
+    footer {
+      margin-top: 28px;
       text-align: center;
-      margin-top: 20px;
-      background: var(--primary);
-      color: #fff;
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 600;
-      padding: 14px;
-      border-radius: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
     }
-    footer { margin-top: 26px; text-align: center; font-size: 11px; color: var(--muted); }
+    footer code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #eceff1;
+      padding: 1px 5px;
+      border-radius: 5px;
+      font-size: 10.5px;
+    }
   </style>
 </head>
 <body>
-  <h1>我的 PWA 工具箱</h1>
-  <p class="sub">收录自己写的小工具，点开即用 · 支持安装到桌面</p>
+  <header>
+    <p class="eyebrow">Personal Toolkit</p>
+    <h1>个人效率工具箱</h1>
+    <p class="sub">一些自己写的小工具，点开即用 · 可离线安装到桌面</p>
+  </header>
 
-  <div class="tools">
-    <a class="tool" href="./pwa/plant-todo/">
-      <div class="icon">🌱</div>
-      <div class="info">
-        <div class="name">植愈待办 PlantTodo</div>
-        <div class="desc">完成待办，养出你的小花园</div>
-      </div>
-      <div class="arrow">›</div>
-    </a>
+  <div class="section-title">
+    <span>全部工具</span>
+    <span class="count" id="count">1 个</span>
   </div>
 
-  <a class="btn" href="./pwa/plant-todo/">进入植愈待办 →</a>
+  <!-- ===== 工具卡片列表 =====
+       新增工具：把工具放到 pwa/<名称>/（含 index.html），
+       然后复制下面一张卡片，改 href、图标、标题、描述即可。
+       不要用新窗口方式打开，这样在 PWA 窗口内跳转也不会弹出浏览器地址栏。
+  ========================= -->
+  <div class="cards">
+    <a class="card" href="./pwa/plant-todo/">
+      <div class="icon">🌱</div>
+      <div class="info">
+        <div class="name">植愈待办</div>
+        <div class="desc">完成待办，养出你的小花园</div>
+      </div>
+      <div class="chev">›</div>
+    </a>
 
-  <footer>以后新增的工具放在 <code>pwa/&lt;名称&gt;/</code> 下即可</footer>
+    <!-- 复制模板
+    <a class="card" href="./pwa/工具目录/">
+      <div class="icon">🧰</div>
+      <div class="info">
+        <div class="name">工具名称</div>
+        <div class="desc">一句话说明这个工具做什么</div>
+      </div>
+      <div class="chev">›</div>
+    </a>
+    -->
+
+    <div class="card placeholder">
+      <div class="icon">＋</div>
+      <div class="info">
+        <div class="name">更多工具开发中</div>
+        <div class="desc">新工具放进 pwa/ 目录后在这里加一张卡片</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    个人效率工具箱 · 安装后可离线打开<br />
+    新增工具路径：<code>pwa/&lt;名称&gt;/</code>
+  </footer>
+
+  <script>
+    // 卡片数量（占位卡不计入）
+    (function () {
+      var n = document.querySelectorAll('.cards .card:not(.placeholder)').length;
+      var el = document.getElementById('count');
+      if (el) el.textContent = n + ' 个';
+    })();
+
+    // 注册 Service Worker（满足 Chrome PWA 安装条件）
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
