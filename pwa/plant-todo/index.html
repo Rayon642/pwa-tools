@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#f0f7f4" />
+  <title>植愈待办 - PlantTodo</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #f0f7f4;
+      --card: #ffffff;
+      --primary: #2d6a4f;
+      --primary-light: #52b788;
+      --text: #1b4332;
+      --muted: #748c82;
+      --border: #d8e8e0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    header h1 { font-size: 20px; font-weight: 700; }
+    .garden-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .plant-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(45, 106, 79, 0.06);
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .stage-badge {
+      display: inline-block;
+      background: #e6f4ea;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    #plant-svg {
+      width: 150px;
+      height: 150px;
+      margin: 4px auto;
+      transition: transform 0.3s ease;
+    }
+    .water-anim { transform: scale(1.08); }
+    .progress-wrap {
+      background: #e9f2ee;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 6px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-light), var(--primary));
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .progress-text { font-size: 12px; color: var(--muted); }
+    .harvest-btn {
+      margin-top: 10px;
+      background: #ff758f;
+      color: #fff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+    }
+    .input-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .input-box input {
+      flex: 1;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 14px;
+      outline: none;
+      background: var(--card);
+    }
+    .input-box select {
+      padding: 0 8px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 13px;
+    }
+    .input-box button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .todo-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .todo-item {
+      background: var(--card);
+      padding: 12px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--border);
+    }
+    .todo-left { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; }
+    .check-circle {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--primary-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .todo-item.done .check-circle { background: var(--primary-light); color: #fff; }
+    .todo-item.done .todo-title { text-decoration: line-through; color: var(--muted); }
+    .xp-tag {
+      font-size: 11px; background: #f0f7f4; color: var(--primary);
+      padding: 2px 6px; border-radius: 6px; margin-left: 6px;
+    }
+    .del-btn {
+      background: none; border: none; color: #b5c4bd; font-size: 16px; padding: 4px 8px; cursor: pointer;
+    }
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: var(--card); border-radius: 20px; padding: 20px;
+      width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 14px; }
+    .flower-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .flower-item {
+      background: var(--bg); border-radius: 12px; padding: 10px; text-align: center; font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌱 植愈待办</h1>
+    <button class="garden-btn" onclick="toggleModal(true)">🌸 花园图鉴 (<span id="flower-count">0</span>)</button>
+  </header>
+
+  <section class="plant-card">
+    <div class="stage-badge" id="stage-name">阶段 1：种子萌芽</div>
+    <div id="plant-box">
+      <svg id="plant-svg" viewBox="0 0 120 120"></svg>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="progress-text" id="progress-text">成长进度：0 / 100</div>
+    <button class="harvest-btn" id="harvest-btn" onclick="harvestFlower()">✨ 收入花园并种下新种子</button>
+  </section>
+
+  <div class="input-box">
+    <input type="text" id="todo-input" placeholder="输入一件待办小事..." />
+    <select id="xp-select">
+      <option value="15">轻松 +15</option>
+      <option value="25" selected>普通 +25</option>
+      <option value="40">挑战 +40</option>
+    </select>
+    <button onclick="addTodo()">添加</button>
+  </div>
+
+  <ul class="todo-list" id="todo-list"></ul>
+
+  <div class="modal" id="garden-modal" onclick="if(event.target===this)toggleModal(false)">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>🌸 我的花朵收藏</h3>
+        <button onclick="toggleModal(false)" style="border:none;background:none;font-size:18px;">✕</button>
+      </div>
+      <div class="flower-grid" id="flower-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const FLOWER_TYPES = [
+      { name: '樱花粉', color: '#ff8fab' },
+      { name: '向日葵金', color: '#ffb703' },
+      { name: '薰衣草紫', color: '#b5179e' },
+      { name: '薄荷青', color: '#4cc9f0' },
+      { name: '珊瑚橙', color: '#fb8500' },
+      { name: '蔷薇红', color: '#e63946' }
+    ];
+
+    let state = JSON.parse(localStorage.getItem('plant_todo_v1')) || {
+      xp: 0,
+      currentFlower: FLOWER_TYPES[0],
+      todos: [
+        { id: 1, text: '喝一杯温水，深呼吸三次', xp: 15, done: false },
+        { id: 2, text: '完成今天最核心的一件小事', xp: 25, done: false }
+      ],
+      garden: []
+    };
+
+    function save() {
+      localStorage.setItem('plant_todo_v1', JSON.stringify(state));
+    }
+
+    function renderPlant() {
+      const xp = Math.min(state.xp, 100);
+      const svg = document.getElementById('plant-svg');
+      const stageName = document.getElementById('stage-name');
+      const harvestBtn = document.getElementById('harvest-btn');
+      const flowerColor = state.currentFlower.color;
+
+      document.getElementById('progress-bar').style.width = xp + '%';
+      document.getElementById('progress-text').textContent = `成长进度：${xp} / 100`;
+      harvestBtn.style.display = xp >= 100 ? 'inline-block' : 'none';
+
+      let soil = `<ellipse cx="60" cy="105" rx="36" ry="8" fill="#8d6e63"/>`;
+      let art = '';
+
+      if (xp < 20) {
+        stageName.textContent = '阶段 1：种子萌芽';
+        art = `<circle cx="60" cy="98" r="6" fill="#6d4c41"/><path d="M60 94 Q65 86 70 88" stroke="#52b788" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+      } else if (xp < 45) {
+        stageName.textContent = '阶段 2：破土小苗';
+        art = `<path d="M60 102 L60 72" stroke="#40916c" stroke-width="4" stroke-linecap="round"/>
+               <ellipse cx="50" cy="76" rx="10" ry="5" transform="rotate(-25 50 76)" fill="#52b788"/>
+               <ellipse cx="70" cy="72" rx="10" ry="5" transform="rotate(25 70 72)" fill="#74c69d"/>`;
+      } else if (xp < 70) {
+        stageName.textContent = '阶段 3：茁壮小树';
+        art = `<path d="M60 102 L60 55" stroke="#6f4e37" stroke-width="6" stroke-linecap="round"/>
+               <circle cx="60" cy="52" r="22" fill="#52b788"/>
+               <circle cx="46" cy="60" r="14" fill="#40916c"/>
+               <circle cx="74" cy="60" r="14" fill="#74c69d"/>`;
+      } else if (xp < 100) {
+        stageName.textContent = '阶段 4：繁茂大树';
+        art = `<path d="M60 102 L60 48 M60 70 L45 58 M60 66 L75 55" stroke="#5c4033" stroke-width="7" stroke-linecap="round"/>
+               <circle cx="60" cy="44" r="28" fill="#40916c"/>
+               <circle cx="40" cy="54" r="18" fill="#52b788"/>
+               <circle cx="80" cy="54" r="18" fill="#2d6a4f"/>`;
+      } else {
+        stageName.textContent = `阶段 5：绚烂开花（${state.currentFlower.name}）`;
+        art = `<path d="M60 102 L60 48 M60 70 L45 58 M60 66 L75 55" stroke="#5c4033" stroke-width="7" stroke-linecap="round"/>
+               <circle cx="60" cy="44" r="28" fill="#40916c"/>
+               <circle cx="40" cy="54" r="18" fill="#52b788"/>
+               <circle cx="80" cy="54" r="18" fill="#2d6a4f"/>
+               <circle cx="60" cy="34" r="7" fill="${flowerColor}"/><circle cx="60" cy="34" r="2.5" fill="#fff"/>
+               <circle cx="42" cy="48" r="6" fill="${flowerColor}"/><circle cx="42" cy="48" r="2" fill="#fff"/>
+               <circle cx="78" cy="48" r="6" fill="${flowerColor}"/><circle cx="78" cy="48" r="2" fill="#fff"/>
+               <circle cx="52" cy="60" r="5" fill="${flowerColor}"/>
+               <circle cx="68" cy="60" r="5" fill="${flowerColor}"/>`;
+      }
+      svg.innerHTML = soil + art;
+    }
+
+    function renderTodos() {
+      const list = document.getElementById('todo-list');
+      list.innerHTML = '';
+      state.todos.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'todo-item' + (item.done ? ' done' : '');
+        li.innerHTML = `
+          <div class="todo-left" onclick="toggleTodo(${item.id})">
+            <div class="check-circle">${item.done ? '✓' : ''}</div>
+            <span class="todo-title">${item.text}</span>
+            <span class="xp-tag">+${item.xp}</span>
+          </div>
+          <button class="del-btn" onclick="deleteTodo(${item.id})">✕</button>
+        `;
+        list.appendChild(li);
+      });
+      document.getElementById('flower-count').textContent = state.garden.length;
+    }
+
+    function addTodo() {
+      const input = document.getElementById('todo-input');
+      const xp = parseInt(document.getElementById('xp-select').value, 10);
+      const text = input.value.trim();
+      if (!text) return;
+      state.todos.unshift({ id: Date.now(), text, xp, done: false });
+      input.value = '';
+      save(); renderTodos();
+    }
+
+    function toggleTodo(id) {
+      const todo = state.todos.find(t => t.id === id);
+      if (!todo) return;
+      todo.done = !todo.done;
+      state.xp = Math.max(0, state.xp + (todo.done ? todo.xp : -todo.xp));
+      const svg = document.getElementById('plant-svg');
+      svg.classList.add('water-anim');
+      setTimeout(() => svg.classList.remove('water-anim'), 300);
+      save(); renderPlant(); renderTodos();
+    }
+
+    function deleteTodo(id) {
+      state.todos = state.todos.filter(t => t.id !== id);
+      save(); renderTodos();
+    }
+
+    function harvestFlower() {
+      if (state.xp < 100) return;
+      state.garden.push({
+        ...state.currentFlower,
+        date: new Date().toLocaleDateString()
+      });
+      state.xp = 0;
+      state.currentFlower = FLOWER_TYPES[Math.floor(Math.random() * FLOWER_TYPES.length)];
+      save(); renderPlant(); renderTodos();
+    }
+
+    function toggleModal(show) {
+      const modal = document.getElementById('garden-modal');
+      modal.classList.toggle('show', show);
+      if (show) {
+        const grid = document.getElementById('flower-grid');
+        grid.innerHTML = state.garden.length === 0
+          ? '<p style="grid-column:1/-1;text-align:center;color:#748c82;padding:20px;">还没有收获花朵，快去完成待办吧！</p>'
+          : state.garden.map(f => `
+              <div class="flower-item">
+                <div style="width:28px;height:28px;border-radius:50%;background:${f.color};margin:0 auto 6px;"></div>
+                <strong>${f.name}</strong>
+                <div style="font-size:10px;color:#748c82;margin-top:2px;">${f.date}</div>
+              </div>
+            `).join('');
+      }
+    }
+
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
+    renderPlant();
+    renderTodos();
+  </script>
+</body>
+</html>

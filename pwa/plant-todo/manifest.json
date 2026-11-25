@@ -1,0 +1,15 @@
+{
+  "name": "植愈待办 PlantTodo",
+  "short_name": "植愈待办",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f7f4",
+  "theme_color": "#f0f7f4",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232d6a4f'/%3E%3Ccircle cx='50' cy='50' r='24' fill='%23ff8fab'/%3E%3Ccircle cx='50' cy='50' r='8' fill='%23ffffff'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
